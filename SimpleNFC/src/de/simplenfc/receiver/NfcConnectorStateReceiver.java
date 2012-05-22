@@ -1,4 +1,4 @@
-package de.simplenfc;
+package de.simplenfc.receiver;
 
 import java.io.IOException;
 
@@ -26,7 +26,7 @@ import de.simplenfc.listener.NfcWriteListener;
  *
  */
 public class NfcConnectorStateReceiver extends BroadcastReceiver {
-	public static final String ACTION_WRITER_STATECHANGED = "simplenfc_writer_statechanged";
+	public static final String ACTION_STATECHANGED = "simplenfc_statechanged";
 	public static final String EXTRA_EXCEPTION_NFCDISABLED = "nfcdisabledexception";
 	public static final String EXTRA_EXCEPTION_IO = "ioexception";
 	public static final String EXTRA_EXCEPTION_FORMAT = "formatexception";
@@ -35,7 +35,7 @@ public class NfcConnectorStateReceiver extends BroadcastReceiver {
 	public static final String EXTRA_EXCEPTION_NDEF = "ndefexception";
 	public static final String EXTRA_WRITTEN = "tag_written";
 	
-	private NfcWriteListener listener;
+	private NfcWriteListener mListener;
 	
 	
 	/**
@@ -44,7 +44,7 @@ public class NfcConnectorStateReceiver extends BroadcastReceiver {
 	 * @param listener {@link NfcWriteListener} to call on exceptions or success.
 	 */
 	public NfcConnectorStateReceiver(NfcWriteListener listener){
-		this.listener = listener;
+		this.mListener = listener;
 	}
 
 
@@ -56,24 +56,24 @@ public class NfcConnectorStateReceiver extends BroadcastReceiver {
 	 */
 	@Override
 	public void onReceive(Context context, Intent intent) {
-		if(intent.getAction().equals(ACTION_WRITER_STATECHANGED)){
+		if(intent.getAction().equals(ACTION_STATECHANGED)){
 			Bundle b = intent.getExtras();
 			
 			if(b.containsKey(EXTRA_EXCEPTION_NFCDISABLED)){
-				this.listener.onNfcException((NfcDisabledException)b.getSerializable(EXTRA_EXCEPTION_NFCDISABLED));
+				this.mListener.onNfcException((NfcDisabledException)b.getSerializable(EXTRA_EXCEPTION_NFCDISABLED));
 			}else if(b.containsKey(EXTRA_EXCEPTION_IO)){
-				this.listener.onNfcException((IOException)b.getSerializable(EXTRA_EXCEPTION_IO));
+				this.mListener.onNfcException((IOException)b.getSerializable(EXTRA_EXCEPTION_IO));
 			}else if(b.containsKey(EXTRA_EXCEPTION_FORMAT)){
-				this.listener.onNfcException((FormatException)b.getSerializable(EXTRA_EXCEPTION_FORMAT));
+				this.mListener.onNfcException((FormatException)b.getSerializable(EXTRA_EXCEPTION_FORMAT));
 			}else if(b.containsKey(EXTRA_EXCEPTION_READONLY)){
-				this.listener.onNfcException((ReadOnlyException)b.getSerializable(EXTRA_EXCEPTION_READONLY));
+				this.mListener.onNfcException((ReadOnlyException)b.getSerializable(EXTRA_EXCEPTION_READONLY));
 			}else if(b.containsKey(EXTRA_EXCEPTION_LOWCAPACITY)){
-				this.listener.onNfcException((LowCapacityException)b.getSerializable(EXTRA_EXCEPTION_LOWCAPACITY));
+				this.mListener.onNfcException((LowCapacityException)b.getSerializable(EXTRA_EXCEPTION_LOWCAPACITY));
 			}else if(b.containsKey(EXTRA_EXCEPTION_NDEF)){
-				this.listener.onNfcException((NDEFException)b.getSerializable(EXTRA_EXCEPTION_NDEF));
+				this.mListener.onNfcException((NDEFException)b.getSerializable(EXTRA_EXCEPTION_NDEF));
 			}else if(b.containsKey(EXTRA_WRITTEN)){
 				context.unregisterReceiver(this);
-				this.listener.onNfcMessageWritten();
+				this.mListener.onNfcMessageWritten();
 			}
 		}
 	}

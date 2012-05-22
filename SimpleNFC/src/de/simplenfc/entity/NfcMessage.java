@@ -12,12 +12,10 @@ import android.nfc.NdefMessage;
 import android.nfc.NdefRecord;
 import android.os.Parcel;
 import android.os.Parcelable;
-import android.util.Log;
-import de.simplenfc.Nfc;
 
 /**
  * The {@link NfcMessage} is the container for all {@link NfcRecord}s and simplifies the process
- * of creating the correct arguments. Simply pass an ID to the constructor, add {@link Nfcrecord}s
+ * of creating the correct arguments. Simply add {@link Nfcrecord}s with a given ID
  * and it is ready to be written onto a tag. 
  * 
  * @author Benjamin R&uuml;hl (simplenfc@benjamin-ruehl.de)
@@ -28,35 +26,33 @@ import de.simplenfc.Nfc;
 public class NfcMessage implements Parcelable{
 	public static final String KEY_MESSAGE = "nfc_message";
 	
-	private NdefMessage message;
-	private String ID;
+	private NdefMessage mMessage;
+	private String mId;
 	
 	
 	/**
 	 * Constructs a new {@link NfcMessage} with all parameters set to standard values.
 	 * @param messageID An ID for the new message.
 	 */
-	public NfcMessage(String messageID){
-		this.ID = messageID;
-		NdefRecord mimeTypRecord = new NdefRecord(NdefRecord.TNF_MIME_MEDIA, ("application/"+Nfc.PACKAGE_NAME).getBytes(), messageID.getBytes(), new byte[] {});
-		this.message = new NdefMessage(new NdefRecord[]{mimeTypRecord});
-		Log.v("nfclavs", "packagename: "+Nfc.PACKAGE_NAME);
+	public NfcMessage(){
+		mId = null;
+		mMessage = new NdefMessage(new NdefRecord[]{});
 	}
 	
 	protected NfcMessage(Parcel in){
 		byte bytes[] = in.createByteArray();
 		try {
-			this.message = new NdefMessage(bytes);
+			mMessage = new NdefMessage(bytes);
 		} catch (FormatException e) {
 			e.printStackTrace();
 		}
-		NdefRecord[] records = this.message.getRecords();
-		this.ID = new String(records[records.length-1].getId());
+		NdefRecord[] records = mMessage.getRecords();
+		mId = new String(records[records.length-1].getId());
 	}
 	
 	protected NfcMessage(NdefMessage msg){
-		this.message = msg;
-		this.ID = new String(this.message.getRecords()[0].getId());
+		mMessage = msg;
+		mId = new String(mMessage.getRecords()[0].getId());
 	}
 	
 	
@@ -66,10 +62,10 @@ public class NfcMessage implements Parcelable{
 	 * @param content The content of the new record as a String.
 	 */
 	public void addRecord(String id, String content){
-		 ArrayList<NdefRecord> records = new ArrayList<NdefRecord>(Arrays.asList(this.message.getRecords()));
+		 ArrayList<NdefRecord> records = new ArrayList<NdefRecord>(Arrays.asList(mMessage.getRecords()));
 		 //new NdefRecord(tnf, type, id, payload)
 		 records.add(new NdefRecord(NdefRecord.TNF_WELL_KNOWN, NfcRecord.STRING_RECORD.getBytes(), id.getBytes(), content.getBytes()));
-		 this.message = new NdefMessage(records.toArray(new NdefRecord[]{}));
+		 mMessage = new NdefMessage(records.toArray(new NdefRecord[]{}));
 	}
 	
 	
@@ -81,7 +77,7 @@ public class NfcMessage implements Parcelable{
 	 * @throws ClassNotFoundException May be thrown while converting the HashMap into ByteStream.
 	 */
 	public void addRecord(String id, HashMap<String, String> map) throws IOException, ClassNotFoundException{
-		 ArrayList<NdefRecord> records = new ArrayList<NdefRecord>(Arrays.asList(this.message.getRecords()));
+		 ArrayList<NdefRecord> records = new ArrayList<NdefRecord>(Arrays.asList(mMessage.getRecords()));
 		 //new NdefRecord(tnf, type, id, payload)
 		 
 		 ByteArrayOutputStream byteOut = new ByteArrayOutputStream();
@@ -90,7 +86,7 @@ public class NfcMessage implements Parcelable{
 		 objectOut.close();
 		 
 		 records.add(new NdefRecord(NdefRecord.TNF_WELL_KNOWN, NfcRecord.MAP_RECORD.getBytes(), id.getBytes(), byteOut.toByteArray()));
-		 this.message = new NdefMessage(records.toArray(new NdefRecord[]{}));
+		 mMessage = new NdefMessage(records.toArray(new NdefRecord[]{}));
 	}
 	
 	
@@ -102,10 +98,10 @@ public class NfcMessage implements Parcelable{
 	 * @param payload byte array, containing zero to (2 ** 32 - 1) bytes, must not be null.
 	 */
 	public void addRecord(String id, short TNF, byte[] type, byte[] payload){
-		 ArrayList<NdefRecord> records = new ArrayList<NdefRecord>(Arrays.asList(this.message.getRecords()));
+		 ArrayList<NdefRecord> records = new ArrayList<NdefRecord>(Arrays.asList(mMessage.getRecords()));
 		 //new NdefRecord(tnf, type, id, payload)
 		 records.add(new NdefRecord(TNF, type, id.getBytes(), payload));
-		 this.message = new NdefMessage(records.toArray(new NdefRecord[]{}));
+		 mMessage = new NdefMessage(records.toArray(new NdefRecord[]{}));
 	}
 	
 	
@@ -114,7 +110,7 @@ public class NfcMessage implements Parcelable{
 	 * @return All Records as {@link NfcRecord}s.
 	 */
 	public HashMap<String, NfcRecord> getRecords(){
-		NdefRecord[] rawRecords = this.message.getRecords();
+		NdefRecord[] rawRecords = mMessage.getRecords();
 		int length = rawRecords.length;
 		HashMap<String, NfcRecord> simpleRecords = new HashMap<String, NfcRecord>(length);
 		NfcRecord simpleRecord = null;
@@ -135,7 +131,7 @@ public class NfcMessage implements Parcelable{
 	 * @deprecated Hier müssen wir noch mal reinschauen, sollte eigentlich ein {@link NfcRecord} sein.
 	 */
 	public NdefRecord getRecord(String id){
-		NdefRecord[] rawRecords = this.message.getRecords();
+		NdefRecord[] rawRecords = mMessage.getRecords();
 		int length = rawRecords.length;
 		for(int i=1; i<length; i++){
 			if(new String(rawRecords[i].getId()).equals(id)) return rawRecords[i];
@@ -151,7 +147,7 @@ public class NfcMessage implements Parcelable{
 	 */
 	@Override
 	public String toString() {
-		NdefRecord[] records = this.message.getRecords();
+		NdefRecord[] records = mMessage.getRecords();
 		int length = records.length;
 		String IDs = "";
 		for(int i=0; i<length; i++){
@@ -159,7 +155,7 @@ public class NfcMessage implements Parcelable{
 			if(i != length-1) IDs += ", ";
 		}
 		
-		return "SimpleNFCMessage '" + this.ID + "' mit " + records.length + " records (" + IDs+")";
+		return "SimpleNFCMessage '" + mId + "' mit " + records.length + " records (" + IDs+")";
 	}
 	
 
@@ -168,7 +164,7 @@ public class NfcMessage implements Parcelable{
 	 * @return Return a simple {@link NdefMessage} without the comfort of a {@link NfcMessage}
 	 */
 	public NdefMessage getRAWMessage(){
-		return this.message;
+		return mMessage;
 	}
 	
 	
@@ -176,7 +172,7 @@ public class NfcMessage implements Parcelable{
 	 * @return The ID of the message.
 	 */
 	public String getID(){
-		return this.ID;
+		return mId;
 	}
 
 	
@@ -235,6 +231,6 @@ public class NfcMessage implements Parcelable{
 	 */
 	@Override
 	public void writeToParcel(Parcel dest, int flags) {
-		dest.writeByteArray(this.message.toByteArray());
+		dest.writeByteArray(mMessage.toByteArray());
 	}
 }

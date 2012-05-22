@@ -19,7 +19,7 @@ public class NfcRecord {
 	public static final String STRING_RECORD = "string";
 	public static final String MAP_RECORD = "map";
 	
-	protected NdefRecord record;
+	protected NdefRecord mRecord;
 	
 	
 	/**
@@ -27,7 +27,7 @@ public class NfcRecord {
 	 * @param record A typical NdefRecord.
 	 */
 	public NfcRecord(NdefRecord record){
-		this.record = record;
+		this.mRecord = record;
 	}
 	
 	
@@ -35,14 +35,14 @@ public class NfcRecord {
 	 * @return ID of record.
 	 */
 	public String getID(){
-		return new String(this.record.getId());
+		return new String(this.mRecord.getId());
 	}
 	
 	/**
 	 * @return Type of record.
 	 */
 	public String getType(){
-		return new String(this.record.getType());
+		return new String(this.mRecord.getType());
 	}
 	
 	/**
@@ -52,7 +52,7 @@ public class NfcRecord {
 	@SuppressWarnings("unchecked")
 	public Object getContent(){
 		if(this.getType().equals(MAP_RECORD)){
-			ByteArrayInputStream byteIn = new ByteArrayInputStream(record.getPayload());
+			ByteArrayInputStream byteIn = new ByteArrayInputStream(mRecord.getPayload());
 			ObjectInputStream objectIn;
 			HashMap<String, String> map = null;
 			try {
@@ -69,7 +69,7 @@ public class NfcRecord {
 			
 			return map;
 		}else{
-			return new String(this.record.getPayload());
+			return new String(this.mRecord.getPayload());
 		}
 	}
 }

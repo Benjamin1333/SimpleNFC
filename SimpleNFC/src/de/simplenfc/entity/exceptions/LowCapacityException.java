@@ -10,7 +10,7 @@ package de.simplenfc.entity.exceptions;
  */
 public class LowCapacityException extends Exception {
 	private static final long serialVersionUID = 1L;
-	private int capacity, messageSize;
+	private int mCapacity, mMessageSize;
 	
 	/**
 	 * Construct a LowCapacityException with tag-capacity and actual message size.
@@ -18,8 +18,8 @@ public class LowCapacityException extends Exception {
 	 * @param messageSize Size of the message to write.
 	 */
 	public LowCapacityException(int capacity, int messageSize){
-		this.capacity = capacity;
-		this.messageSize = messageSize;
+		this.mCapacity = capacity;
+		this.mMessageSize = messageSize;
 	}
 	
 	/**
@@ -27,6 +27,6 @@ public class LowCapacityException extends Exception {
 	 */
 	@Override
 	public String getMessage() {
-		return "Tag capacity is " + capacity + " bytes, message needs " + messageSize + " bytes.";
+		return "Tag capacity is " + mCapacity + " bytes, message needs " + mMessageSize + " bytes.";
 	}
 }
