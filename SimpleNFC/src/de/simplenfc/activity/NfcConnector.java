@@ -72,6 +72,8 @@ public class NfcConnector extends Activity {
 			this.readMessage(intent);
 		} else if(intent.hasExtra(EXTRA_MODE) && intent.getStringExtra(EXTRA_MODE).equals(MODE_FOREGROUND)){
 			this.handleForegroundMessage(intent);
+		}else {
+			this.readMessage(intent);
 		}
 	}
 	
